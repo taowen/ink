@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/prefer-nullish-coalescing */
-import React, {PureComponent} from 'react';
-import type {YogaNode} from 'yoga-layout-prebuilt';
+import React, {forwardRef} from 'react';
+import type {FC} from 'react';
 import type {Except} from 'type-fest';
 import type {Styles} from '../styles';
 
@@ -16,20 +16,8 @@ export type Props = Except<Styles, 'textWrap'> & {
 /**
  * `<Box>` it's an essential Ink component to build your layout. It's like a `<div style="display: flex">` in a browser.
  */
-export default class Box extends PureComponent<Props> {
-	static displayName = 'Box';
-
-	static defaultProps = {
-		flexDirection: 'row',
-		flexGrow: 0,
-		flexShrink: 1
-	};
-
-	nodeRef = React.createRef<{yogaNode: YogaNode} & HTMLDivElement>();
-
-	render() {
-		const {children, ...style} = this.props;
-
+const Box: FC<Props> = forwardRef<HTMLDivElement, Props>(
+	({children, ...style}, ref) => {
 		const transformedStyle = {
 			...style,
 			marginLeft: style.marginLeft || style.marginX || style.margin || 0,
@@ -43,13 +31,19 @@ export default class Box extends PureComponent<Props> {
 		};
 
 		return (
-			<div ref={this.nodeRef} style={transformedStyle}>
+			<div ref={ref} style={transformedStyle}>
 				{children}
 			</div>
 		);
 	}
+);
 
-	unstable__getComputedWidth(): number | undefined {
-		return this.nodeRef.current?.yogaNode.getComputedWidth();
-	}
-}
+Box.displayName = 'Box';
+
+Box.defaultProps = {
+	flexDirection: 'row',
+	flexGrow: 0,
+	flexShrink: 1
+};
+
+export default Box;
